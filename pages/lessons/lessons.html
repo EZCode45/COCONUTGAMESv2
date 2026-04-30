@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--Brought to you by DevinDaboiCorporation-->
+
 <html>
     <head>
         <title>Learn Calculus</title>
@@ -8,55 +8,82 @@
         <link rel="stylesheet" href="../../css/fontawesome.css"/>
         <link rel="stylesheet" href="../../css/otherpages.css"/>
         <style>
+            :root {
+                --card-bg: rgba(6, 20, 16, 0.76);
+                --card-border: rgba(110, 255, 201, 0.42);
+                --card-hover: rgba(127, 255, 212, 0.16);
+            }
             #gamesgrid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(7.5vw, 1fr));
-                column-gap: 0.5vw;
-                row-gap: 2vh;
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+                gap: 14px;
                 margin-bottom: 0;
+                align-items: stretch;
             }
-            img {
-                width: 7.6vw;
-                height: 7.6vw;
-                border-radius: 10%;
-                top: 0;
-                margin-top: 0;
-                margin-bottom: 1vh;
-                object-fit: cover;
-            }
-
-            button {
+            .game-card {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                width: 7.6vw;
-                height: auto;
-                font-size: 60%;
-                padding: 0 0 0.5vw 0;
-                border-radius: 15px;
+                gap: 8px;
+                padding: 10px;
+                border-radius: 16px;
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                backdrop-filter: blur(6px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            }
+            .game-card:hover {
+                background: linear-gradient(180deg, var(--card-bg), var(--card-hover));
+            }
+            .game-thumb {
+                width: 100%;
+                aspect-ratio: 1 / 1;
+                border-radius: 12px;
+                object-fit: cover;
+            }
+            .game-title {
+                font-size: 0.85rem;
+                line-height: 1.2;
+                text-align: center;
+                min-height: 2.2em;
+                display: grid;
+                place-items: center;
+            }
+            .card-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .play-btn,
+            .blank-btn {
+                width: 100%;
+                height: 36px;
+                font-size: 0.72rem;
+                border-radius: 999px;
+                padding: 0;
             }
             #gamesearchform {
                 display: flex;
                 justify-content: center;
-                margin-bottom: 4vh;
+                margin-bottom: 18px;
             }
             #gamesearchinput {
-				background: none;
-				color: #5EFD28;
-				font-family: inherit;
-				padding: 0px 17px;
-				height: 48px;
-				outline: 2px solid #00FF00;
-				border-radius: 3px;
-				width: 350px;
-				margin-top: 5px;
-				border-radius: 50px;
-				transition: border-radius 0.1s;
-			}
+                background: rgba(0,0,0,0.4);
+                color: #5EFD28;
+                font-family: inherit;
+                padding: 0 17px;
+                height: 48px;
+                outline: 2px solid #00FF00;
+                border: none;
+                border-radius: 50px;
+                width: min(420px, 90vw);
+            }
             input::placeholder {
-				color: #5EFD28;
-			}
+                color: #5EFD28;
+            }
+            #no-results {
+                grid-column: 1 / -1;
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -140,7 +167,7 @@
             <button onclick="openGame('superhot/superhot.html')"> <img src="img/superhot.webp" draggable="false">Superhot</button>
             <button onclick="openGame('temple-run-2/temple-run-2.html')"> <img src="img/temple-run-2.webp" draggable="false">Temple Run 2</button>
             <button onclick="openGame('tabletennis/tabletennis.html')"> <img src="img/tabletennis.webp" draggable="false">Table Tennis</button>
-            <button onclick="openGame('Tetris/tetrisgame.html')"> <img src="img/26.webp" draggable="false">Tetris</button> <!--the first ever ddc game🥹 -->
+            <button onclick="openGame('Tetris/tetrisgame.html')"> <img src="img/26.webp" draggable="false">Tetris</button> 
             <button onclick="openGame('TimeShooter/timeshooter.html')"> <img src="img/27.webp" draggable="false">Time Shooter</button>
             <button onclick="openGame('tombofthemask/tombofthemask.html')"> <img src="img/tombofthemask.webp" draggable="false">Tomb of the Mask</button>
             <button onclick="openGame('tunnelrush/tunnelrush.html')"> <img src="img/28.webp" draggable="false">Tunnel Rush</button>
@@ -162,39 +189,87 @@
         const searchInput = document.getElementById('gamesearchinput');
         const grid = document.getElementById('gamesgrid');
         const noResults = document.getElementById('no-results');
+        const gameButtons = Array.from(grid.querySelectorAll('button'));
+
         noResults.style.display = 'none';
+
+        function normalizeUrl(url) {
+            return new URL(url, window.location.href).href;
+        }
+
+        function openGame(url) {
+            window.location.href = normalizeUrl(url);
+        }
+
+        function openGameBlank(url) {
+            const target = normalizeUrl(url);
+            const win = window.open('about:blank', '_blank');
+            if (!win) {
+                return;
+            }
+            win.document.open();
+            win.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden;}html,body{width:100%;height:100%;background:black;}iframe{border:0;width:100%;height:100%;display:block;}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>');
+            win.document.close();
+            localStorage.setItem('lastPlayedGame', target);
+        }
+
+        gameButtons.forEach(btn => {
+            const img = btn.querySelector('img');
+            const title = btn.textContent.trim();
+            const clickAttr = btn.getAttribute('onclick') || '';
+            const match = clickAttr.match(/openGame\('([^']+)'\)/);
+            if (!img || !match) {
+                return;
+            }
+            const src = img.getAttribute('src');
+            const gameUrl = match[1];
+            const card = document.createElement('article');
+            card.className = 'game-card';
+            card.dataset.name = title.toLowerCase();
+
+            const thumb = document.createElement('img');
+            thumb.src = src;
+            thumb.draggable = false;
+            thumb.className = 'game-thumb';
+
+            const name = document.createElement('div');
+            name.className = 'game-title';
+            name.textContent = title;
+
+            const actions = document.createElement('div');
+            actions.className = 'card-actions';
+
+            const playBtn = document.createElement('button');
+            playBtn.className = 'play-btn';
+            playBtn.textContent = 'Play';
+            playBtn.addEventListener('click', () => {
+                localStorage.setItem('lastPlayedGame', normalizeUrl(gameUrl));
+                openGame(gameUrl);
+            });
+
+            const blankBtn = document.createElement('button');
+            blankBtn.className = 'blank-btn';
+            blankBtn.textContent = 'About Blank';
+            blankBtn.addEventListener('click', () => openGameBlank(gameUrl));
+
+            actions.append(playBtn, blankBtn);
+            card.append(thumb, name, actions);
+            btn.replaceWith(card);
+        });
+
+        const cards = Array.from(grid.querySelectorAll('.game-card'));
 
         searchInput.addEventListener('input', function () {
             const query = this.value.trim().toLowerCase();
-            const buttons = grid.querySelectorAll('button');
             let visibleCount = 0;
-            buttons.forEach(btn => {
-                const name = btn.textContent.trim().toLowerCase();
-                const matches = !query || name.includes(query);
-                btn.style.display = matches ? '' : 'none';
+            cards.forEach(card => {
+                const matches = !query || card.dataset.name.includes(query);
+                card.style.display = matches ? '' : 'none';
                 if (matches) {
-                    visibleCount++
+                    visibleCount++;
                 }
             });
-
-            noResults.style.display = visibleCount == 0 ? 'block' : 'none';
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
         });
-        function openGame(url) {
-            const win = window.open();
-            win.document.open();
-            win.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden;}html,body{width:100%;height:100%;background:black;}</style></head><body></body></html>');
-            win.document.close();
-            const iframe = win.document.createElement("iframe");
-            iframe.style.cssText = `
-                border: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                display: block;
-            `;
-            iframe.src = url;
-            win.document.body.appendChild(iframe);
-        }
     </script>
 </html>
