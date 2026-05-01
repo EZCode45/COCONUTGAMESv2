@@ -11,6 +11,7 @@
   <video id="camstatic" preload="auto" muted style="display: none;">
     <source src="img/camstatic.mp4" type="video/mp4">
   </video>
+
   <canvas id="matrix"></canvas>
   <div id="overlay"></div>
   <div id="overlaygreen1"></div>
@@ -20,60 +21,12 @@
     <header class="hero">
       <p class="badge">COCONUT</p>
       <h1>COCONUT Games</h1>
-      <h2>Pick a game card and play instantly</h2>
+      <h2>Clean, smooth, no-noise game launcher</h2>
     </header>
-
-    <section class="home-games" id="homeGames">
-      <article class="home-card" data-url="pages/lessons/subwaysurfers/subwaysurfers.html">
-        <img src="pages/lessons/img/25.webp" alt="Subway Surfers">
-        <h3>Subway Surfers</h3>
-        <div>
-          <button class="play-inline">Play</button>
-          <button class="play-blank">About Blank</button>
-        </div>
-      </article>
-      <article class="home-card" data-url="pages/lessons/drivemad/drivemad.html">
-        <img src="pages/lessons/img/9.webp" alt="Drive Mad">
-        <h3>Drive Mad</h3>
-        <div><button class="play-inline">Play</button><button class="play-blank">About Blank</button></div>
-      </article>
-      <article class="home-card" data-url="pages/lessons/eggycar/eggycar.html">
-        <img src="pages/lessons/img/eggycar.webp" alt="Eggy Car">
-        <h3>Eggy Car</h3>
-        <div><button class="play-inline">Play</button><button class="play-blank">About Blank</button></div>
-      </article>
-      <article class="home-card" data-url="pages/lessons/retrobowl/retro.html">
-        <img src="pages/lessons/img/20.webp" alt="Retrobowl">
-        <h3>Retrobowl</h3>
-        <div><button class="play-inline">Play</button><button class="play-blank">About Blank</button></div>
-      </article>
-    </section>
 
     <section class="content-card">
       <iframe src="pages/lessons/lessons.html" id="pageiframe" title="Games"></iframe>
     </section>
   </main>
-
-  <script>
-    const pageFrame = document.getElementById('pageiframe');
-    document.querySelectorAll('.home-card').forEach(card => {
-      const gameUrl = card.dataset.url;
-      card.querySelector('.play-inline').addEventListener('click', () => {
-        pageFrame.src = gameUrl;
-        localStorage.setItem('lastPlayedGame', new URL(gameUrl, location.href).href);
-      });
-      card.querySelector('.play-blank').addEventListener('click', () => {
-        const target = new URL(gameUrl, location.href).href;
-        const win = window.open('about:blank', '_blank');
-        if (!win) {
-          return;
-        }
-        win.document.open();
-        win.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden;}html,body{width:100%;height:100%;background:black;}iframe{border:0;width:100%;height:100%;display:block;}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>');
-        win.document.close();
-        localStorage.setItem('lastPlayedGame', target);
-      });
-    });
-  </script>
 </body>
 </html>
