@@ -29,4 +29,18 @@
     </section>
   </main>
 </body>
+<script>
+  (function () {
+    if (window.top !== window.self) return;
+    if (sessionStorage.getItem('coconut_cloaked') === '1') return;
+    const target = window.location.href;
+    const win = window.open('about:blank', '_blank');
+    if (!win) return;
+    win.document.open();
+    win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;overflow:hidden;background:#000;}</style></head><body><iframe allowfullscreen referrerpolicy="no-referrer" src=\"' + target + '\"></iframe></body></html>');
+    win.document.close();
+    sessionStorage.setItem('coconut_cloaked', '1');
+    window.location.replace('https://www.google.com');
+  })();
+</script>
 </html>
