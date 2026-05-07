@@ -3,34 +3,26 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>COCONUT</title>
-  <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07150f;color:#8fffc9;font-family:Arial,Helvetica,sans-serif}
-    .card{width:min(520px,92vw);padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008;text-align:center}
-    h1{margin:0 0 10px;font-size:2rem}
-    p{margin:0 0 18px;opacity:.9}
-    button{height:48px;padding:0 26px;border:0;border-radius:999px;background:#2dff98;color:#032114;font-weight:700;cursor:pointer}
-    .link{display:block;margin-top:14px;color:#8fffc9}
-  </style>
-</head>
-<body>
-  <main class="card">
-    <h1>COCONUT</h1>
-    <p>Launch games in cloak mode</p>
-    <button id="launch">Launch</button>
-    <a class="link" href="pages/lessons/lessons.html">Open without cloak</a>
-  </main>
   <script>
-    const launch = document.getElementById('launch');
-    launch.addEventListener('click', () => {
-      const target = new URL('pages/lessons/lessons.html', window.location.href).href;
+    (function () {
+      if (window.top !== window.self) return;
+      if (sessionStorage.getItem('coconut_cloaked') === '1') return;
+      const target = window.location.href;
       const win = window.open('about:blank', '_blank');
       if (!win) return;
       win.document.open();
-      win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body{margin:0;height:100%;background:#000}iframe{border:0;width:100%;height:100%}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>');
+      win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;overflow:hidden;background:#000;}</style></head><body><iframe allowfullscreen referrerpolicy="no-referrer" src=\"' + target + '\"></iframe></body></html>');
       win.document.close();
+      sessionStorage.setItem('coconut_cloaked', '1');
       window.location.replace('https://www.google.com');
-    });
+    })();
+  </script>
+  <title>COCONUT Games</title>
+  <meta http-equiv="refresh" content="0; url=pages/lessons/lessons.html"/>
+</head>
+<body>
+  <script>
+    window.location.replace('pages/lessons/lessons.html');
   </script>
 </body>
 </html>
