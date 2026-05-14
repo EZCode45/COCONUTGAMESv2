@@ -48,10 +48,16 @@
     const url = document.getElementById('url');
     const go = document.getElementById('go');
     function showPanel(){gate.classList.add('hidden');panel.classList.remove('hidden')}
+    function openGamesBlank(){
+      const target = new URL('pages/lessons/lessons.html', window.location.href).href;
+      const win = window.open('about:blank', '_blank');
+      if (!win) return;
+      win.location.replace(target);
+    }
     if(localStorage.getItem(key)==='1')showPanel();
-    unlock.addEventListener('click',()=>{if(input.value===pass){localStorage.setItem(key,'1');showPanel();status.textContent='';}else{status.textContent='Wrong password';}});
+    unlock.addEventListener('click',()=>{if(input.value===pass){localStorage.setItem(key,'1');showPanel();status.textContent='';openGamesBlank();}else{status.textContent='Wrong password';}});
     input.addEventListener('keydown',e=>{if(e.key==='Enter')unlock.click();});
-    games.addEventListener('click',()=>{window.location.href='pages/lessons/lessons.html';});
+    games.addEventListener('click',()=>{openGamesBlank();});
     go.addEventListener('click',()=>{
       let target=url.value.trim();
       if(!target)return;
