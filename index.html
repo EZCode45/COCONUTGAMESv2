@@ -3,30 +3,62 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>COCONUT Games</title>
-  <link rel="stylesheet" href="css/fontawesome.css"/>
-  <link rel="stylesheet" href="css/index.css"/>
+  <title>COCONUT Access</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07150f;color:#8fffc9;font-family:Arial,Helvetica,sans-serif}
+    .card{width:min(560px,92vw);padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008}
+    h1{margin:0 0 10px;font-size:2rem;text-align:center}
+    p{margin:0 0 16px;opacity:.9;text-align:center}
+    .row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    input,button{height:46px;border-radius:12px;border:1px solid #3aff9f55;background:#0f2a1f;color:#b9ffd9;padding:0 14px;font-size:1rem}
+    button{background:#2dff98;color:#032114;font-weight:700;border:0;cursor:pointer}
+    .hidden{display:none}
+    .status{min-height:24px;text-align:center;color:#ffd17d;margin-top:8px}
+    .split{display:grid;grid-template-columns:1fr auto;gap:10px}
+    a{color:#8fffc9;text-align:center;display:block;margin-top:12px}
+  </style>
 </head>
 <body>
-  <video id="camstatic" preload="auto" muted style="display: none;">
-    <source src="img/camstatic.mp4" type="video/mp4">
-  </video>
-
-  <canvas id="matrix"></canvas>
-  <div id="overlay"></div>
-  <div id="overlaygreen1"></div>
-  <div id="overlaygreen2"></div>
-
-  <main class="app-shell">
-    <header class="hero">
-      <p class="badge">COCONUT</p>
-      <h1>COCONUT Games</h1>
-      <h2>Clean, smooth, no-noise game launcher</h2>
-    </header>
-
-    <section class="content-card">
-      <iframe src="pages/lessons/lessons.html" id="pageiframe" title="Games"></iframe>
+  <main class="card">
+    <h1>COCONUT</h1>
+    <p>Private Access</p>
+    <section id="gate" class="row">
+      <input id="password" type="password" placeholder="Enter password" autocomplete="off"/>
+      <button id="unlock">Unlock</button>
+      <div id="status" class="status"></div>
+    </section>
+    <section id="panel" class="row hidden">
+      <button id="games">Open Games</button>
+      <div class="split">
+        <input id="url" type="text" placeholder="https://example.com"/>
+        <button id="go">Go</button>
+      </div>
+      <a href="pages/lessons/lessons.html">Open Games Directly</a>
     </section>
   </main>
+  <script>
+    const key = 'coconut_gate_open';
+    const pass = 'COCONUT2026';
+    const gate = document.getElementById('gate');
+    const panel = document.getElementById('panel');
+    const status = document.getElementById('status');
+    const input = document.getElementById('password');
+    const unlock = document.getElementById('unlock');
+    const games = document.getElementById('games');
+    const url = document.getElementById('url');
+    const go = document.getElementById('go');
+    function showPanel(){gate.classList.add('hidden');panel.classList.remove('hidden')}
+    if(localStorage.getItem(key)==='1')showPanel();
+    unlock.addEventListener('click',()=>{if(input.value===pass){localStorage.setItem(key,'1');showPanel();status.textContent='';}else{status.textContent='Wrong password';}});
+    input.addEventListener('keydown',e=>{if(e.key==='Enter')unlock.click();});
+    games.addEventListener('click',()=>{window.location.href='pages/lessons/lessons.html';});
+    go.addEventListener('click',()=>{
+      let target=url.value.trim();
+      if(!target)return;
+      if(!/^https?:\/\//i.test(target))target='https://'+target;
+      window.open(target,'_blank','noopener');
+    });
+    url.addEventListener('keydown',e=>{if(e.key==='Enter')go.click();});
+  </script>
 </body>
 </html>
