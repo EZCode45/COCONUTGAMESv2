@@ -64,8 +64,9 @@
     function openInBlank(target){
       const win = window.open('about:blank', '_blank', 'noopener');
       if (!win) return;
+      const safeTarget = String(target).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       win.document.open();
-      win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>about:blank</title><style>html,body{margin:0;width:100%;height:100%;background:#000}iframe{border:0;width:100%;height:100%}</style></head><body><iframe referrerpolicy="no-referrer" allowfullscreen src="'+target.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></iframe></body></html>');
+      win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>about:blank</title><style>html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif}iframe{border:0;width:100%;height:100%}#fallback{position:fixed;inset:auto 12px 12px 12px;background:#111a;padding:10px 12px;border-radius:10px;text-align:center;display:none}a{color:#8fffc9}</style></head><body><iframe id="frame" referrerpolicy="no-referrer" allowfullscreen src="'+safeTarget+'"></iframe><div id="fallback">If this page cannot be embedded, <a id="openlink" href="'+safeTarget+'" target="_self" rel="noreferrer">tap here to open directly</a>.</div><script>setTimeout(function(){var f=document.getElementById('frame');var fb=document.getElementById('fallback');try{if(f&&f.contentWindow&&f.contentWindow.location&&f.contentWindow.location.href==='about:blank'){fb.style.display='block';}}catch(e){fb.style.display='none';}},1500);</script></body></html>');
       win.document.close();
     }
     function openGamesBlank(){
