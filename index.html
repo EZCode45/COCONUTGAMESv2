@@ -64,10 +64,7 @@
     function openInBlank(target){
       const win = window.open('about:blank', '_blank', 'noopener');
       if (!win) return;
-      const safeTarget = String(target);
-      win.document.open();
-      win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>about:blank</title><style>html,body{margin:0;width:100%;height:100%;background:#000;color:#8fffc9;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center}span{opacity:.85}</style></head><body><span>Loading...</span><script>location.replace('+JSON.stringify(safeTarget)+');<\/script></body></html>');
-      win.document.close();
+      win.location.replace(String(target));
     }
     function openGamesBlank(){
       const target = new URL('pages/lessons/lessons.html', window.location.href).href;
