@@ -3,64 +3,34 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>COCONUT Access</title>
+  <title>COCONUT</title>
   <style>
     body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07150f;color:#8fffc9;font-family:Arial,Helvetica,sans-serif}
-    .card{width:min(560px,92vw);padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008}
-    h1{margin:0 0 10px;font-size:2rem;text-align:center}
-    p{margin:0 0 16px;opacity:.9;text-align:center}
-    .row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-    input,button{height:46px;border-radius:12px;border:1px solid #3aff9f55;background:#0f2a1f;color:#b9ffd9;padding:0 14px;font-size:1rem}
-    button{background:#2dff98;color:#032114;font-weight:700;border:0;cursor:pointer}
-    .hidden{display:none}
-    .split{display:grid;grid-template-columns:1fr auto;gap:10px}
-    a{color:#8fffc9;text-align:center;display:block;margin-top:12px}
+    .card{width:min(520px,92vw);padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008;text-align:center}
+    h1{margin:0 0 10px;font-size:2rem}
+    p{margin:0 0 18px;opacity:.9}
+    button{height:48px;padding:0 26px;border:0;border-radius:999px;background:#2dff98;color:#032114;font-weight:700;cursor:pointer}
+    .link{display:block;margin-top:14px;color:#8fffc9}
   </style>
 </head>
 <body>
   <main class="card">
     <h1>COCONUT</h1>
-    <p>COCONUT</p>
-    <section id="panel" class="row">
-      <button id="games">Open Games</button>
-      <div class="split">
-        <input id="url" type="text" placeholder="https://example.com"/>
-        <button id="go">Go</button>
-      </div>
-      <a id="direct" href="pages/lessons/lessons.html">Open Games Directly</a>
-    </section>
+    <p>Launch games in cloak mode</p>
+    <button id="launch">Launch</button>
+    <a class="link" href="pages/lessons/lessons.html">Open without cloak</a>
   </main>
   <script>
-    const activityKey = 'coconut_last_activity';
-    const wipeMs = 1468800000;
-    const games = document.getElementById('games');
-    const url = document.getElementById('url');
-    const go = document.getElementById('go');
-    const direct = document.getElementById('direct');
-    function touchActivity(){localStorage.setItem(activityKey,String(Date.now()))}
-    function clearCookies(){document.cookie.split(';').forEach(c=>{const n=c.split('=')[0].trim();if(n)document.cookie=n+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';})}
-    async function clearPersistentData(){localStorage.clear();sessionStorage.clear();clearCookies();if(window.indexedDB&&indexedDB.databases){const dbs=await indexedDB.databases();await Promise.all(dbs.map(db=>db&&db.name?new Promise(r=>{const req=indexedDB.deleteDatabase(db.name);req.onsuccess=req.onerror=req.onblocked=()=>r();}):Promise.resolve()));}if(window.caches){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}}
-    async function enforceInactivityWipe(){const last=Number(localStorage.getItem(activityKey)||0);if(last&&Date.now()-last>wipeMs){await clearPersistentData();}touchActivity();}
-    function openInBlank(target){
-      const win = window.open('about:blank', '_blank', 'noopener');
-      if (!win) return;
-      win.location.replace(String(target));
-    }
-    function openGamesBlank(){
+    const launch = document.getElementById('launch');
+    launch.addEventListener('click', () => {
       const target = new URL('pages/lessons/lessons.html', window.location.href).href;
-      openInBlank(target);
-    }
-    enforceInactivityWipe();
-    games.addEventListener('click',()=>{touchActivity();openGamesBlank();});
-    go.addEventListener('click',()=>{
-      let target=url.value.trim();
-      if(!target)return;
-      touchActivity();
-      if(!/^https?:\/\//i.test(target))target='https://'+target;
-      openInBlank(target);
+      const win = window.open('about:blank', '_blank');
+      if (!win) return;
+      win.document.open();
+      win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body{margin:0;height:100%;background:#000}iframe{border:0;width:100%;height:100%}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>');
+      win.document.close();
+      window.location.replace('https://www.google.com');
     });
-    direct.addEventListener('click',e=>{touchActivity();e.preventDefault();openGamesBlank();});
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)touchActivity()});
   </script>
 </body>
 </html>
