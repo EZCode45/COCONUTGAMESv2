@@ -13,7 +13,6 @@
     input,button{height:46px;border-radius:12px;border:1px solid #3aff9f55;background:#0f2a1f;color:#b9ffd9;padding:0 14px;font-size:1rem}
     button{background:#2dff98;color:#032114;font-weight:700;border:0;cursor:pointer}
     .hidden{display:none}
-    .status{min-height:24px;text-align:center;color:#ffd17d;margin-top:8px}
     .split{display:grid;grid-template-columns:1fr auto;gap:10px}
     a{color:#8fffc9;text-align:center;display:block;margin-top:12px}
   </style>
@@ -21,50 +20,47 @@
 <body>
   <main class="card">
     <h1>COCONUT</h1>
-    <p>Private Access</p>
-    <section id="gate" class="row">
-      <input id="password" type="password" placeholder="Enter password" autocomplete="off"/>
-      <button id="unlock">Unlock</button>
-      <div id="status" class="status"></div>
-    </section>
-    <section id="panel" class="row hidden">
+    <p>COCONUT</p>
+    <section id="panel" class="row">
       <button id="games">Open Games</button>
       <div class="split">
         <input id="url" type="text" placeholder="https://example.com"/>
         <button id="go">Go</button>
       </div>
-      <a href="pages/lessons/lessons.html">Open Games Directly</a>
+      <a id="direct" href="pages/lessons/lessons.html">Open Games Directly</a>
     </section>
   </main>
   <script>
-    const key = 'coconut_gate_open';
-    const pass = 'COCONUT2026';
-    const gate = document.getElementById('gate');
-    const panel = document.getElementById('panel');
-    const status = document.getElementById('status');
-    const input = document.getElementById('password');
-    const unlock = document.getElementById('unlock');
+    const activityKey = 'coconut_last_activity';
+    const wipeMs = 1468800000;
     const games = document.getElementById('games');
     const url = document.getElementById('url');
     const go = document.getElementById('go');
-    function showPanel(){gate.classList.add('hidden');panel.classList.remove('hidden')}
+    const direct = document.getElementById('direct');
+    function touchActivity(){localStorage.setItem(activityKey,String(Date.now()))}
+    function clearCookies(){document.cookie.split(';').forEach(c=>{const n=c.split('=')[0].trim();if(n)document.cookie=n+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';})}
+    async function clearPersistentData(){localStorage.clear();sessionStorage.clear();clearCookies();if(window.indexedDB&&indexedDB.databases){const dbs=await indexedDB.databases();await Promise.all(dbs.map(db=>db&&db.name?new Promise(r=>{const req=indexedDB.deleteDatabase(db.name);req.onsuccess=req.onerror=req.onblocked=()=>r();}):Promise.resolve()));}if(window.caches){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}}
+    async function enforceInactivityWipe(){const last=Number(localStorage.getItem(activityKey)||0);if(last&&Date.now()-last>wipeMs){await clearPersistentData();}touchActivity();}
+    function openInBlank(target){
+      const win = window.open('about:blank', '_blank', 'noopener');
+      if (!win) return;
+      win.location.replace(String(target));
+    }
     function openGamesBlank(){
       const target = new URL('pages/lessons/lessons.html', window.location.href).href;
-      const win = window.open('about:blank', '_blank');
-      if (!win) return;
-      win.location.replace(target);
+      openInBlank(target);
     }
-    if(localStorage.getItem(key)==='1')showPanel();
-    unlock.addEventListener('click',()=>{if(input.value===pass){localStorage.setItem(key,'1');showPanel();status.textContent='';openGamesBlank();}else{status.textContent='Wrong password';}});
-    input.addEventListener('keydown',e=>{if(e.key==='Enter')unlock.click();});
-    games.addEventListener('click',()=>{openGamesBlank();});
+    enforceInactivityWipe();
+    games.addEventListener('click',()=>{touchActivity();openGamesBlank();});
     go.addEventListener('click',()=>{
       let target=url.value.trim();
       if(!target)return;
+      touchActivity();
       if(!/^https?:\/\//i.test(target))target='https://'+target;
-      window.open(target,'_blank','noopener');
+      openInBlank(target);
     });
-    url.addEventListener('keydown',e=>{if(e.key==='Enter')go.click();});
+    direct.addEventListener('click',e=>{touchActivity();e.preventDefault();openGamesBlank();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)touchActivity()});
   </script>
 </body>
 </html>
