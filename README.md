@@ -1,18 +1,15 @@
 # COCONUT
 
-COCONUT is protected by a two-step authentication gate when deployed with Cloudflare Pages Functions.
+COCONUT includes a local testing account server. It stores accounts, player data, approved devices, administrator notifications, and sessions in `data/accounts.json`.
 
-## Required deployment variables
+## Run locally
 
-Configure these encrypted environment variables in the Cloudflare Pages project before deploying:
+```sh
+node server.js
+```
 
-| Variable | Purpose |
-| --- | --- |
-| `AUTH_USERNAME` | First-step username |
-| `AUTH_PASSWORD` | First-step password |
-| `AUTH_ACCESS_CODE` | Separate second-step access code |
-| `AUTH_SESSION_SECRET` | Long, random secret used to sign authentication cookies |
+Open `http://localhost:8787`, create the first administrator account, and use the administrator dashboard to create player accounts. A player signing in from a new browser device must request a temporary code. The code appears in the administrator notification panel and expires after 15 minutes.
 
-Use `.dev.vars.example` as the template for local Cloudflare development. Do not commit a populated `.dev.vars` file.
+Player data belongs to the account in `data/accounts.json`, not the browser. Players can save and reset their own data and change their password. Administrators can reset a player's data, approved devices, or password.
 
-The authentication function protects every request, including direct game URLs and static game assets. A successful session is stored in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie for eight hours. The first verification step expires after five minutes.
+This is a local testing server. Do not expose it to the internet or use it for sensitive accounts.

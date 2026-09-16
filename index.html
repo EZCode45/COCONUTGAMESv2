@@ -5,32 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>COCONUT</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07150f;color:#8fffc9;font-family:Arial,Helvetica,sans-serif}
-    .card{width:min(520px,92vw);padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008;text-align:center}
-    h1{margin:0 0 10px;font-size:2rem}
-    p{margin:0 0 18px;opacity:.9}
-    button{height:48px;padding:0 26px;border:0;border-radius:999px;background:#2dff98;color:#032114;font-weight:700;cursor:pointer}
-    .link{display:block;margin-top:14px;color:#8fffc9}
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#07150f;color:#dffff0;font:16px Arial,Helvetica,sans-serif}.shell{width:min(920px,94vw);margin:48px auto}.card{padding:28px;border:1px solid #3aff9f66;border-radius:18px;background:#0d2119;box-shadow:0 12px 40px #0008}.hidden{display:none}h1,h2{margin:0 0 12px;color:#8fffc9}p{line-height:1.5}form{display:grid;gap:12px;max-width:440px}label{font-weight:700}input,button{min-height:46px;border-radius:10px;font:inherit}input{border:1px solid #3aff9f66;background:#07150f;color:#e8fff4;padding:0 12px}button{border:0;padding:0 18px;background:#2dff98;color:#032114;font-weight:700;cursor:pointer}.secondary{background:transparent;border:1px solid #3aff9f66;color:#8fffc9}.error{color:#ffb4b4;min-height:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:18px}.actions{display:flex;flex-wrap:wrap;gap:10px}.notice{padding:14px;margin:10px 0;border-radius:10px;background:#17352a}.account{padding:14px;border:1px solid #3aff9f44;border-radius:10px;margin:10px 0}.link{color:#8fffc9}
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>COCONUT</h1>
-    <p>Launch games in cloak mode</p>
-    <button id="launch">Launch</button>
-    <a class="link" href="pages/lessons/lessons.html">Open without cloak</a>
+  <main class="shell">
+    <section id="setup" class="card hidden"><h1>Set up COCONUT</h1><p>Create the first administrator account. Administrators create player accounts and approve new devices.</p><form id="setup-form"><label>Administrator username<input name="username" required></label><label>Password<input name="password" type="password" minlength="8" required></label><button>Create administrator</button></form><p id="setup-message" class="error"></p></section>
+    <section id="login" class="card hidden"><h1>COCONUT</h1><p>Sign in with an account created by the administrator.</p><form id="login-form"><label>Username<input name="username" required></label><label>Password<input name="password" type="password" required></label><label id="code-field" class="hidden">Temporary code<input name="code" inputmode="numeric" maxlength="6"></label><button id="login-button">Sign in</button></form><p id="login-message" class="error"></p><p id="code-message" class="hidden">This is a new device. Ask the administrator for the temporary code in their notifications.</p></section>
+    <section id="app" class="hidden"><div class="card"><h1>COCONUT</h1><p id="welcome"></p><div class="actions"><button id="launch">Launch games in cloak mode</button><a class="link" href="pages/lessons/lessons.html">Open without cloak</a><button id="sign-out" class="secondary">Sign out</button></div></div><div class="grid"><section class="card"><h2>Player data</h2><form id="data-form"><label>Coins<input name="coins" type="number" min="0" value="0"></label><label>Progress note<input name="note" maxlength="200"></label><button>Save player data</button></form><p id="data-message" class="error"></p><button id="reset-data" class="secondary">Reset my player data</button></section><section id="password-card" class="card"><h2>Account options</h2><form id="password-form"><label>Current password<input name="currentPassword" type="password" required></label><label>New password<input name="newPassword" type="password" minlength="8" required></label><button>Change password</button></form><p id="password-message" class="error"></p></section></div><section id="admin" class="card hidden" style="margin-top:18px"><h2>Administrator</h2><div class="grid"><div><h3>Create player account</h3><form id="create-player-form"><label>Username<input name="username" required></label><label>Initial password<input name="password" type="password" minlength="8" required></label><button>Create player</button></form><p id="admin-message" class="error"></p></div><div><h3>Notifications</h3><div id="notifications"></div></div></div><h3>Player accounts</h3><div id="accounts"></div></section></section>
   </main>
   <script>
-    const launch = document.getElementById('launch');
-    launch.addEventListener('click', () => {
-      const target = new URL('pages/lessons/lessons.html', window.location.href).href;
-      const win = window.open('about:blank', '_blank');
-      if (!win) return;
-      win.document.open();
-      win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body{margin:0;height:100%;background:#000}iframe{border:0;width:100%;height:100%}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>');
-      win.document.close();
-      window.location.replace('https://www.google.com');
-    });
+    const deviceKey = 'coconut_device';
+    const tokenKey = 'coconut_token';
+    const deviceId = localStorage.getItem(deviceKey) || crypto.randomUUID();
+    localStorage.setItem(deviceKey, deviceId);
+    let token = localStorage.getItem(tokenKey);
+    let currentAccount;
+    const byId = id => document.getElementById(id);
+    const show = id => byId(id).classList.remove('hidden');
+    const hide = id => byId(id).classList.add('hidden');
+    const request = async (path, options = {}) => { const response = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) } }); const body = await response.json(); if (!response.ok) throw new Error(body.error); return body; };
+    const deviceName = () => navigator.userAgent.slice(0, 64) || 'Browser device';
+    const message = (id, value = '') => { byId(id).textContent = value; };
+    const app = async account => { currentAccount = account; hide('setup'); hide('login'); show('app'); byId('welcome').textContent = `Signed in as ${account.username}. Your player data is stored with your account.`; byId('data-form').coins.value = account.playerData.coins || 0; byId('data-form').note.value = account.playerData.progress.note || ''; if (account.role === 'admin') { show('admin'); await loadAdmin(); } else hide('admin'); };
+    const loadAdmin = async () => { const data = await request('/api/admin/accounts'); byId('notifications').innerHTML = data.notifications.length ? data.notifications.map(item => `<div class="notice">New device for <strong>${item.username}</strong>: temporary code <strong>${item.code}</strong><br>${item.deviceName}</div>`).join('') : '<p>No pending notifications.</p>'; byId('accounts').innerHTML = data.accounts.filter(account => account.role === 'player').map(account => `<div class="account"><strong>${account.username}</strong><br>${account.devices.length} approved device(s)<div class="actions"><button data-action="data" data-id="${account.id}" class="secondary">Reset data</button><button data-action="devices" data-id="${account.id}" class="secondary">Reset devices</button><button data-action="password" data-id="${account.id}" class="secondary">Reset password</button></div></div>`).join('') || '<p>No player accounts yet.</p>'; };
+    byId('setup-form').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.target); try { const data = await request('/api/setup', { method: 'POST', body: JSON.stringify({ username: form.get('username'), password: form.get('password'), deviceId, deviceName: deviceName() }) }); token = data.token; localStorage.setItem(tokenKey, token); await app(data.account); } catch (error) { message('setup-message', error.message); } });
+    byId('login-form').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.target); const code = form.get('code'); try { const path = code ? '/api/auth/verify' : '/api/auth/request'; const data = await request(path, { method: 'POST', body: JSON.stringify({ username: form.get('username'), password: form.get('password'), code, deviceId, deviceName: deviceName() }) }); if (data.needsCode) { show('code-field'); show('code-message'); byId('login-button').textContent = 'Verify temporary code'; return; } token = data.token; localStorage.setItem(tokenKey, token); await app(data.account); } catch (error) { message('login-message', error.message); } });
+    byId('data-form').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.target); try { const data = await request('/api/me/data', { method: 'POST', body: JSON.stringify({ playerData: { coins: Math.max(0, Number(form.get('coins')) || 0), progress: { note: form.get('note') } } }) }); currentAccount = data.account; message('data-message', 'Player data saved.'); } catch (error) { message('data-message', error.message); } });
+    byId('reset-data').addEventListener('click', async () => { if (!confirm('Reset your player data?')) return; const data = await request('/api/me/reset-data', { method: 'POST', body: '{}' }); await app(data.account); });
+    byId('password-form').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.target); try { await request('/api/me/password', { method: 'POST', body: JSON.stringify({ currentPassword: form.get('currentPassword'), newPassword: form.get('newPassword') }) }); event.target.reset(); message('password-message', 'Password changed.'); } catch (error) { message('password-message', error.message); } });
+    byId('create-player-form').addEventListener('submit', async event => { event.preventDefault(); const form = new FormData(event.target); try { await request('/api/admin/accounts', { method: 'POST', body: JSON.stringify({ username: form.get('username'), password: form.get('password') }) }); event.target.reset(); message('admin-message', 'Player account created.'); await loadAdmin(); } catch (error) { message('admin-message', error.message); } });
+    byId('accounts').addEventListener('click', async event => { const button = event.target.closest('button'); if (!button) return; const action = button.dataset.action; const accountId = button.dataset.id; const payload = { accountId }; if (action === 'password') { const password = prompt('Enter a new password with at least 8 characters.'); if (!password) return; payload.password = password; } if (!confirm(`Continue with ${action} reset?`)) return; try { await request(`/api/admin/reset-${action}`, { method: 'POST', body: JSON.stringify(payload) }); await loadAdmin(); } catch (error) { message('admin-message', error.message); } });
+    byId('launch').addEventListener('click', () => { const target = new URL('pages/lessons/lessons.html', window.location.href).href; const win = window.open('about:blank', '_blank'); if (!win) return; win.document.open(); win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Classes</title><style>html,body{margin:0;height:100%;background:#000}iframe{border:0;width:100%;height:100%}</style></head><body><iframe allowfullscreen src="' + target + '"></iframe></body></html>'); win.document.close(); window.location.replace('https://www.google.com'); });
+    byId('sign-out').addEventListener('click', () => { localStorage.removeItem(tokenKey); token = null; hide('app'); show('login'); });
+    const start = async () => { try { const status = await request('/api/status'); if (status.setupRequired) return show('setup'); if (!token) return show('login'); const data = await request('/api/me'); await app(data.account); } catch { localStorage.removeItem(tokenKey); token = null; show('login'); } };
+    start();
   </script>
 </body>
 </html>
