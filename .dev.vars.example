@@ -1,0 +1,4 @@
+AUTH_USERNAME=replace-with-your-username
+AUTH_PASSWORD=replace-with-a-strong-password
+AUTH_ACCESS_CODE=replace-with-a-separate-access-code
+AUTH_SESSION_SECRET=replace-with-a-long-random-secret
