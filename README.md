@@ -1,1 +1,5 @@
-SAY BAYE TO SITE ON OCT 25th at 8pm
+Site Has Been Upd to be on a new URL
+
+
+Here is a message from a Patron:
+Trucks are cool
